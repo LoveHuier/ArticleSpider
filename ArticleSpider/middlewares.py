@@ -4,7 +4,9 @@
 #
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
-
+"""
+可以用来存放自定义的Middleware
+"""
 from scrapy import signals
 
 

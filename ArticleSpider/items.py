@@ -4,7 +4,9 @@
 #
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
-
+"""
+类似于django中的form，定义数据保存的格式，比django的form简单，因为字段类型单一
+"""
 import scrapy
 
 

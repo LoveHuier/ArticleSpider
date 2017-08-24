@@ -11,7 +11,7 @@
 
 BOT_NAME = 'ArticleSpider'
 
-SPIDER_MODULES = ['ArticleSpider.spiders']
+SPIDER_MODULES = ['ArticleSpider.spiders']  #spider的路径
 NEWSPIDER_MODULE = 'ArticleSpider.spiders'
 
 

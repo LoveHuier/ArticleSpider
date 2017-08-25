@@ -15,5 +15,5 @@ import os
 current_file_path = os.path.abspath(__file__)
 sys.path.append(os.path.dirname(current_file_path))  # 设置工程目录后，调用execute才会生效
 
-#
+#執行爬蟲的命令
 execute(["scrapy", "crawl", "jobbole"])

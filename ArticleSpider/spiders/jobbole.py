@@ -17,15 +17,19 @@ class JobboleSpider(scrapy.Spider):
         """
 
         # 解析列表頁中的所有文章url並交給scrapy下載後並進行解析
-        post_urls = response.css("#archive div.floated-thumb div.post-thumb a::attr(href)").extract()
-        for post_url in post_urls:
+        post_nodes = response.css("#archive div.floated-thumb div.post-thumb a")
+        for post_node in post_nodes:
+            image_url = post_node.css("img::attr(src)").extract_first("")
+            post_url = post_node.css("::attr(href)").extract_first("")
             """
             若提取的href中沒有域名，則需要提取到當前網頁的域名，並加上當前提取的href組成一個完整的鏈接.
             python3:from urllib import parse 利用urljoin方法通过response.url自动提取域名
             python2:import urlparse
             通过yield关键字将实例好的Request交给scrapy下载
+            Request中的meta属性是字典
             """
-            yield Request(url=parse.urljoin(response.url, post_url), callback=self.parse_detail)
+            yield Request(url=parse.urljoin(response.url, post_url), meta={"front_image_url": image_url},
+                          callback=self.parse_detail)
 
             """
             提取下一页的url并交给scrapy下载
@@ -66,6 +70,7 @@ class JobboleSpider(scrapy.Spider):
         # tags = ",".join(tag_list)
 
         # 通過css選擇器提取字段
+        front_image_url = response.meta.get("front_image_url", "")  # 文章封面图
         title = response.css(".entry-header h1::text").extract()
         create_data = response.css("p.entry-meta-hide-on-mobile::text").extract_first().replace(" ·", "").strip()
         praise_nums = int(response.css(".vote-post-up h10::text").extract_first())

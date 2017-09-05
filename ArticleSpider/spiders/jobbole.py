@@ -3,6 +3,7 @@ import scrapy
 import re
 from scrapy.http import Request
 from urllib import parse
+from ArticleSpider.items import JobBoleArticleIte
 
 
 class JobboleSpider(scrapy.Spider):
@@ -40,6 +41,7 @@ class JobboleSpider(scrapy.Spider):
                 yield Request(url=parse.urljoin(response.url, post_url), callback=self.parse)
 
     def parse_detail(self, response):
+        article_item = JobBoleArticleIte()
         """
         提取文章的具体字段
         """
@@ -93,3 +95,17 @@ class JobboleSpider(scrapy.Spider):
         tag_list = response.css('p.entry-meta-hide-on-mobile a::text').extract()
         tag_list = [element for element in tag_list if not element.strip().endswith("评论")]
         tags = ",".join(tag_list)
+
+        article_item["title"] = title
+        article_item["create_data"] = create_data
+        article_item["url"] = response.url
+        article_item["front_image_url"] = front_image_url
+        article_item["praise_nums"] = praise_nums
+        article_item["comment_nums"] = comment_nums
+        article_item["fav_nums"] = fav_nums
+        article_item["tags"] = tags
+        article_item["content"] = content
+
+        # 将item传递到pipelines中
+        yield article_item
+        pass

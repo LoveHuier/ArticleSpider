@@ -75,7 +75,8 @@ class JobboleSpider(scrapy.Spider):
         front_image_url = response.meta.get("front_image_url", "")  # 文章封面图
         title = response.css(".entry-header h1::text").extract()
         create_data = response.css("p.entry-meta-hide-on-mobile::text").extract_first().replace(" ·", "").strip()
-        praise_nums = int(response.css(".vote-post-up h10::text").extract_first())
+        # praise_nums = int(response.css(".vote-post-up h10::text").extract_first())
+        praise_nums = response.css(".vote-post-up h10::text").extract_first()
         fav_nums = response.css("span.bookmark-btn::text").extract_first()
         regex_str = ".*?(\d+).*"
         match_obj = re.match(regex_str, fav_nums)
@@ -99,7 +100,7 @@ class JobboleSpider(scrapy.Spider):
         article_item["title"] = title
         article_item["create_data"] = create_data
         article_item["url"] = response.url
-        article_item["front_image_url"] = front_image_url
+        article_item["front_image_url"] = [front_image_url]
         article_item["praise_nums"] = praise_nums
         article_item["comment_nums"] = comment_nums
         article_item["fav_nums"] = fav_nums
@@ -108,4 +109,3 @@ class JobboleSpider(scrapy.Spider):
 
         # 将item传递到pipelines中
         yield article_item
-        pass

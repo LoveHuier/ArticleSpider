@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 
 # Scrapy settings for ArticleSpider project
 #
@@ -64,8 +65,15 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines 系统自动配置，只不过没有打开
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
+    # item处理管道：item所要流经的处理类，数字越小，越先处理
     'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
+    'scrapy.pipelines.images.ImagesPipeline': 1,
 }
+# 配置下载图片的路径
+IMAGES_URLS_FIELD = "front_image_url"
+# 配置图片存放的地址
+project_dir = os.path.abspath(os.path.dirname(__file__))
+IMAGES_STORE = os.path.join(project_dir, 'images')
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

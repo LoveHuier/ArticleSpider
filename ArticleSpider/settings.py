@@ -67,7 +67,9 @@ ROBOTSTXT_OBEY = True
 ITEM_PIPELINES = {
     # item处理管道：item所要流经的处理类，数字越小，越先处理
     'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
-    'scrapy.pipelines.images.ImagesPipeline': 1,
+    # 'scrapy.pipelines.images.ImagesPipeline': 1,
+    # 自定义通道处理图片
+    'ArticleSpider.pipelines.ArticleImagePipeline': 1,
 }
 # 配置下载图片的路径
 IMAGES_URLS_FIELD = "front_image_url"

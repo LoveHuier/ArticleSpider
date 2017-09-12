@@ -66,8 +66,9 @@ ROBOTSTXT_OBEY = True
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # item处理管道：item所要流经的处理类，数字越小，越先处理
-    'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
-    'ArticleSpider.pipelines.JsonWithEncodingPipeline': 2,
+    # 'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
+    # 'ArticleSpider.pipelines.JsonWithEncodingPipeline': 2,  #自定义写入json通道
+    'ArticleSpider.pipelines.JsonExporterPipleline': 2,
     # 'scrapy.pipelines.images.ImagesPipeline': 1,
     # 自定义通道处理图片
     'ArticleSpider.pipelines.ArticleImagePipeline': 1,

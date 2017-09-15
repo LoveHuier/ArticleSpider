@@ -16,6 +16,7 @@ from scrapy.exporters import JsonItemExporter  # scrapy本身也提供了写入j
 from twisted.enterprise import adbapi
 
 import MySQLdb
+import MySQLdb.cursors
 
 
 class ArticlespiderPipeline(object):
@@ -47,6 +48,7 @@ class JsonWithEncodingPipeline(object):
 
 
 class MysqlPipeline(object):
+    # 采用同步的机制写入mysql
     def __init__(self):
         """
         连接数据库，并获取cursor(光标)，对db进行操作
@@ -57,11 +59,12 @@ class MysqlPipeline(object):
 
     def process_item(self, item, spider):
         insert_sql = """
-            insert into jobbole_article(title,url,create_data,fav_nums)
-            VALUES (%s,%s,%s,%s)
-        """
+                    insert into jobbole_article(title,url,create_data,fav_nums,url_object_id)
+                    VALUES (%s,%s,%s,%s,%s)
+                """
         self.cursor.execute(insert_sql,
-                            (item["title"], item["url"], item["create_data"], item["fav_nums"]))  # 执行mysql语句
+                            (item["title"], item["url"], item["create_data"], item["fav_nums"],
+                             item['url_object_id']))  # 执行mysql语句
         self.dbconnect.commit()
 
 
@@ -80,7 +83,7 @@ class MysqlTwistedPipline(object):
             db=settings["MYSQL_DBNAME"],
             user=settings["MYSQL_USER"],
             password=settings["MYSQL_PASSWORD"],
-            charset='uft8',
+            charset='utf8',
             cursorclass=MySQLdb.cursors.DictCursor,
             use_unicode=True,
         )
@@ -95,7 +98,13 @@ class MysqlTwistedPipline(object):
         :param spider:
         :return:
         """
-        self.dbpool.runInteraction(self.do_insert, item)
+        query = self.dbpool.runInteraction(self.do_insert, item)
+        # 处理异常
+        query.addErrback(self.handle_error)
+
+    def handle_error(self, failure):
+        # 处理异步插入的异常
+        print(failure)
 
     def do_insert(self, cursor, item):
         """
@@ -105,11 +114,12 @@ class MysqlTwistedPipline(object):
         :return:
         """
         insert_sql = """
-            insert into jobbole_article(title,url,create_data,fav_nums)
-            VALUES (%s,%s,%s,%s)
-        """
+                            insert into jobbole_article(title,url,create_data,fav_nums,url_object_id)
+                            VALUES (%s,%s,%s,%s,%s)
+                        """
         cursor.execute(insert_sql,
-                       (item["title"], item["url"], item["create_data"], item["fav_nums"]))  # 执行mysql语句
+                            (item["title"], item["url"], item["create_data"], item["fav_nums"],
+                             item['url_object_id']))  # 执行mysql语句
 
 
 class JsonExporterPipleline(object):

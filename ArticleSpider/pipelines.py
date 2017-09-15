@@ -14,6 +14,8 @@ import json
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.exporters import JsonItemExporter  # scrapy本身也提供了写入json的机制
 
+import MySQLdb
+
 
 class ArticlespiderPipeline(object):
     def process_item(self, item, spider):
@@ -41,6 +43,25 @@ class JsonWithEncodingPipeline(object):
 
     def spider_closed(self, spider):
         self.file.close()
+
+
+class MysqlPipeline(object):
+    def __init__(self):
+        """
+        连接数据库，并获取cursor(光标)，对db进行操作
+        """
+        self.dbconnect = MySQLdb.connect('127.0.0.1', 'root', 'ts123456', 'article_spider', charset="utf8",
+                                         use_unicode=True)
+        self.cursor = self.dbconnect.cursor()
+
+    def process_item(self, item, spider):
+        insert_sql = """
+            insert into jobbole_article(title,url,create_data,fav_nums)
+            VALUES (%s,%s,%s,%s)
+        """
+        self.cursor.execute(insert_sql,
+                            (item["title"], item["url"], item["create_data"], item["fav_nums"]))  # 执行mysql语句
+        self.dbconnect.commit()
 
 
 class JsonExporterPipleline(object):

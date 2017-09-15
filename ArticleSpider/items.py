@@ -16,7 +16,7 @@ class ArticlespiderItem(scrapy.Item):
     pass
 
 
-class JobBoleArticleIte(scrapy.Item):
+class JobBoleArticleItem(scrapy.Item):
     title = scrapy.Field()
     create_data = scrapy.Field()
     url = scrapy.Field()

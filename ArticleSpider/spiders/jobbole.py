@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import re
+import datetime
 from scrapy.http import Request
 from urllib import parse
-from ArticleSpider.items import JobBoleArticleIte
+from ArticleSpider.items import JobBoleArticleItem
 
 
 from ArticleSpider.utils.common import get_md5
@@ -44,7 +45,7 @@ class JobboleSpider(scrapy.Spider):
                 yield Request(url=parse.urljoin(response.url, post_url), callback=self.parse)
 
     def parse_detail(self, response):
-        article_item = JobBoleArticleIte()
+        article_item = JobBoleArticleItem()
         """
         提取文章的具体字段
         """
@@ -102,6 +103,10 @@ class JobboleSpider(scrapy.Spider):
 
         article_item["url_object_id"] = get_md5(response.url)
         article_item["title"] = title
+        try:
+            create_data = datetime.datetime.strptime(create_data, "%Y/%m/%d").date()
+        except Exception as e:
+            create_data = datetime.datetime.now().date()
         article_item["create_data"] = create_data
         article_item["url"] = response.url
         article_item["front_image_url"] = [front_image_url]

@@ -68,10 +68,11 @@ ITEM_PIPELINES = {
     # item处理管道：item所要流经的处理类，数字越小，越先处理
     # 'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
     # 'ArticleSpider.pipelines.JsonWithEncodingPipeline': 2,  #自定义写入json通道
-    'ArticleSpider.pipelines.JsonExporterPipleline': 2,
+    # 'ArticleSpider.pipelines.JsonExporterPipleline': 2,
     # 'scrapy.pipelines.images.ImagesPipeline': 1,
     # 自定义通道处理图片
-    'ArticleSpider.pipelines.ArticleImagePipeline': 1,
+    # 'ArticleSpider.pipelines.ArticleImagePipeline': 1,
+    'ArticleSpider.pipelines.MysqlPipeline': 1,
 }
 # 配置下载图片的路径
 IMAGES_URLS_FIELD = "front_image_url"

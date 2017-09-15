@@ -13,6 +13,7 @@ import json
 
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.exporters import JsonItemExporter  # scrapy本身也提供了写入json的机制
+from twisted.enterprise import adbapi
 
 import MySQLdb
 
@@ -62,6 +63,53 @@ class MysqlPipeline(object):
         self.cursor.execute(insert_sql,
                             (item["title"], item["url"], item["create_data"], item["fav_nums"]))  # 执行mysql语句
         self.dbconnect.commit()
+
+
+class MysqlTwistedPipline(object):
+    """
+    mysql插入异步化
+    """
+
+    def __init__(self, dbpool):
+        self.dbpool = dbpool
+
+    @classmethod
+    def from_settings(cls, settings):
+        dbparms = dict(
+            host=settings["MYSQL_HOST"],
+            db=settings["MYSQL_DBNAME"],
+            user=settings["MYSQL_USER"],
+            password=settings["MYSQL_PASSWORD"],
+            charset='uft8',
+            cursorclass=MySQLdb.cursors.DictCursor,
+            use_unicode=True,
+        )
+        # 利用连接池
+        dbpool = adbapi.ConnectionPool("MySQLdb", **dbparms)
+        return cls(dbpool)
+
+    def process_item(self, item, spider):
+        """
+        使用twisted将mysql插入变成异步执行
+        :param item:
+        :param spider:
+        :return:
+        """
+        self.dbpool.runInteraction(self.do_insert, item)
+
+    def do_insert(self, cursor, item):
+        """
+        执行具体的插入
+        :param cursor:
+        :param item:
+        :return:
+        """
+        insert_sql = """
+            insert into jobbole_article(title,url,create_data,fav_nums)
+            VALUES (%s,%s,%s,%s)
+        """
+        cursor.execute(insert_sql,
+                       (item["title"], item["url"], item["create_data"], item["fav_nums"]))  # 执行mysql语句
 
 
 class JsonExporterPipleline(object):
